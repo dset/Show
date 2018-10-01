@@ -9,6 +9,14 @@ cv::Mat Image::toMat() {
     return cv::Mat(height, width, CV_8UC(channels), data.data());
 }
 
+unsigned int Image::getHeight() {
+    return height;
+}
+
+unsigned int Image::getWidth() {
+    return width;
+}
+
 uint8_t Image::at(unsigned int row, unsigned int col, unsigned int channel) {
     return data[show::math::index(width, channels, row, col, channel)];
 }
