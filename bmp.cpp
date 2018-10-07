@@ -24,7 +24,7 @@ namespace bmp {
         uint32_t numImportantColors;
     };
 
-    Image read(std::ifstream &in) {
+    Image read(std::ifstream& in) {
         BmpHeader header{};
         DibHeader dibHeader{};
         in.read((char *) &header, sizeof(header));

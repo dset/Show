@@ -61,6 +61,7 @@ int main(int argc, char *argv[]) {
     cl_int createKernelError = 0;
     cl_kernel rowsKernel = clCreateKernel(program, "ft2rows", &createKernelError);
     cl_kernel colsKernel = clCreateKernel(program, "ft2cols", &createKernelError);
+    cl_kernel fourierRowsKernel = clCreateKernel(program, "fourierRowsAndTranspose", &createKernelError);
     std::cout << "Create kernel error is " << createKernelError << std::endl;
 
     cl_int createBufferError = 0;
@@ -72,18 +73,46 @@ int main(int argc, char *argv[]) {
     cl_int enqueueError = clEnqueueWriteBuffer(queue, inputBuffer, CL_FALSE, 0, dataSize, input.data(), 0, nullptr, nullptr);
     std::cout << "Enqueue error is " << enqueueError << std::endl;
 
-    cl_int setArgsError = clSetKernelArg(rowsKernel, 0, sizeof(inputBuffer), &inputBuffer);
-    std::cout << "Set args error is " << setArgsError << std::endl;
-    setArgsError = clSetKernelArg(rowsKernel, 1, sizeof(outputBuffer), &outputBuffer);
-    std::cout << "Set args error is " << setArgsError << std::endl;
+    size_t first_pass_dimensions[] = {height, width, 0};
+    size_t second_pass_dimensions[] = {width, height, 0};
 
-    size_t dimensions[] = {height, width, 0};
-    cl_int enqueueKernelError = clEnqueueNDRangeKernel(queue, rowsKernel, 2, nullptr, dimensions, nullptr, 0, nullptr, nullptr);
-    std::cout << "Enqueue kernel error is " << enqueueKernelError << std::endl;
+    for (int i = 0; i < 4; i++) {
+        clSetKernelArg(fourierRowsKernel, 0, sizeof(inputBuffer), &inputBuffer);
+        clSetKernelArg(fourierRowsKernel, 1, sizeof(outputBuffer), &outputBuffer);
+        cl_int res = clEnqueueNDRangeKernel(queue, fourierRowsKernel, 2, nullptr,
+                                            first_pass_dimensions, nullptr, 0, nullptr, nullptr);
+        std::cout << "Res is " << res << std::endl;
+
+        clSetKernelArg(fourierRowsKernel, 0, sizeof(outputBuffer), &outputBuffer);
+        clSetKernelArg(fourierRowsKernel, 1, sizeof(inputBuffer), &inputBuffer);
+        res = clEnqueueNDRangeKernel(queue, fourierRowsKernel, 2, nullptr, second_pass_dimensions,
+                                     nullptr, 0, nullptr, nullptr);
+        std::cout << "Res is " << res << std::endl;
+    }
+
+    /*clSetKernelArg(rowsKernel, 0, sizeof(inputBuffer), &inputBuffer);
+    clSetKernelArg(rowsKernel, 1, sizeof(outputBuffer), &outputBuffer);
+    clEnqueueNDRangeKernel(queue, fourierRowsKernel, 2, nullptr, first_pass_dimensions, nullptr, 0, nullptr, nullptr);
 
     clSetKernelArg(colsKernel, 0, sizeof(outputBuffer), &outputBuffer);
     clSetKernelArg(colsKernel, 1, sizeof(inputBuffer), &inputBuffer);
-    clEnqueueNDRangeKernel(queue, colsKernel, 2, nullptr, dimensions, nullptr, 0, nullptr, nullptr);
+    clEnqueueNDRangeKernel(queue, fourierRowsKernel, 2, nullptr, second_pass_dimensions, nullptr, 0, nullptr, nullptr);
+
+    clSetKernelArg(rowsKernel, 0, sizeof(inputBuffer), &inputBuffer);
+    clSetKernelArg(rowsKernel, 1, sizeof(outputBuffer), &outputBuffer);
+    clEnqueueNDRangeKernel(queue, fourierRowsKernel, 2, nullptr, first_pass_dimensions, nullptr, 0, nullptr, nullptr);
+
+    clSetKernelArg(colsKernel, 0, sizeof(outputBuffer), &outputBuffer);
+    clSetKernelArg(colsKernel, 1, sizeof(inputBuffer), &inputBuffer);
+    clEnqueueNDRangeKernel(queue, fourierRowsKernel, 2, nullptr, second_pass_dimensions, nullptr, 0, nullptr, nullptr);
+
+    clSetKernelArg(rowsKernel, 0, sizeof(inputBuffer), &inputBuffer);
+    clSetKernelArg(rowsKernel, 1, sizeof(outputBuffer), &outputBuffer);
+    clEnqueueNDRangeKernel(queue, fourierRowsKernel, 2, nullptr, first_pass_dimensions, nullptr, 0, nullptr, nullptr);
+
+    clSetKernelArg(colsKernel, 0, sizeof(outputBuffer), &outputBuffer);
+    clSetKernelArg(colsKernel, 1, sizeof(inputBuffer), &inputBuffer);
+    clEnqueueNDRangeKernel(queue, fourierRowsKernel, 2, nullptr, second_pass_dimensions, nullptr, 0, nullptr, nullptr);*/
 
     cl_int enqueueReadError = clEnqueueReadBuffer(queue, inputBuffer, CL_FALSE, 0, dataSize, output.data(), 0, nullptr, nullptr);
     std::cout << "Enqueue read error is " << enqueueReadError << std::endl;
@@ -95,11 +124,12 @@ int main(int argc, char *argv[]) {
     outputImage.resize(output.size());
     float max = 0.0f;
     for (int i = 0; i < output.size(); i++) {
-        outputImage[i] = std::log(std::sqrt(output[i].x * output[i].x + output[i].y * output[i].y));
+        //outputImage[i] = std::log(std::sqrt(output[i].x * output[i].x + output[i].y * output[i].y));
+        outputImage[i] = output[i].x;
         max = std::max(max, outputImage[i]);
     }
 
-    for (auto& op : outputImage) {
+    for (auto &op : outputImage) {
         op = op / max;
     }
 

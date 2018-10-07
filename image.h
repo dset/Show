@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include <OpenCL/opencl.h>
 
 class Image {
 private:
@@ -9,7 +10,6 @@ private:
     unsigned int width;
     unsigned int channels;
     std::vector<uint8_t> data;
-
 public:
     Image(unsigned int height, unsigned int width, unsigned int channels,
           std::vector<uint8_t> data);
