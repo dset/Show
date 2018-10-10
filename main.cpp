@@ -25,6 +25,8 @@ int main(int argc, char *argv[]) {
     while (key != 'q') {
         if (key == 's') {
             cv::imshow("Display window", processor.createSpectrumMat(image));
+        } else if (key == 'b') {
+            cv::imshow("Display window", processor.boxBlur(image, 11));
         } else {
             cv::imshow("Display window", image.createMat());
         }

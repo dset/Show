@@ -8,8 +8,12 @@ class ImageProcessor {
 private:
     OpenCLEnvironment env;
 
+    cv::Mat convolve(const Image &image, const std::vector<float> &kernel, int kernelHeight);
+
 public:
-    ImageProcessor(OpenCLEnvironment& env);
+    ImageProcessor(OpenCLEnvironment &env);
 
     cv::Mat createSpectrumMat(const Image &image);
+
+    cv::Mat boxBlur(const Image &image, unsigned int size);
 };

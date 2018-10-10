@@ -11,6 +11,7 @@ public:
     cl_kernel byteImageToComplexKernel;
     cl_kernel fourierRowsAndTransposeKernel;
     cl_kernel complexImageToLogMagnitudeKernel;
+    cl_kernel convolveKernel;
 
     OpenCLEnvironment();
 };

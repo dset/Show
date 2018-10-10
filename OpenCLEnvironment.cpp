@@ -30,4 +30,5 @@ OpenCLEnvironment::OpenCLEnvironment() {
     byteImageToComplexKernel = clCreateKernel(clProgram, "byteImageToComplex", nullptr);
     fourierRowsAndTransposeKernel = clCreateKernel(clProgram, "fourierRowsAndTranspose", nullptr);
     complexImageToLogMagnitudeKernel = clCreateKernel(clProgram, "complexImageToLogMagnitude", nullptr);
+    convolveKernel = clCreateKernel(clProgram, "convolve", nullptr);
 }
