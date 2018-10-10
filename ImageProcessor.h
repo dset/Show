@@ -16,4 +16,6 @@ public:
     cv::Mat createSpectrumMat(const Image &image);
 
     cv::Mat boxBlur(const Image &image, unsigned int size);
+
+    cv::Mat edges(const Image &image);
 };

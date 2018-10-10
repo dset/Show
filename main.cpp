@@ -27,6 +27,8 @@ int main(int argc, char *argv[]) {
             cv::imshow("Display window", processor.createSpectrumMat(image));
         } else if (key == 'b') {
             cv::imshow("Display window", processor.boxBlur(image, 11));
+        } else if (key == 'e') {
+            cv::imshow("Display window", processor.edges(image));
         } else {
             cv::imshow("Display window", image.createMat());
         }

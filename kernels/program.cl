@@ -65,7 +65,7 @@ kernel void convolve(global uchar* data, global float* kern, uint kernHeight, ui
         }
     }
 
-    out[index(width, channels, row, col, channel)] = (uchar) val;
+    out[index(width, channels, row, col, channel)] = (uchar) clamp(val, 0.0f, 255.0f);
 }
 
 int index(int width, int channels, int row, int col, int channel) {

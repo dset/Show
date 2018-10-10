@@ -58,6 +58,11 @@ cv::Mat ImageProcessor::boxBlur(const Image &image, unsigned int size) {
     return convolve(image, kernel, size);
 }
 
+cv::Mat ImageProcessor::edges(const Image &image) {
+    std::vector<float> kernel = {-1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f};
+    return convolve(image, kernel, 3);
+}
+
 cv::Mat ImageProcessor::convolve(const Image &image, const std::vector<float>& kernel, int kernelHeight) {
     size_t imageSize = image.height * image.width * image.channels;
     size_t byteImageSize = imageSize * sizeof(uint8_t);
