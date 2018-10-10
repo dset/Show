@@ -58,6 +58,6 @@ namespace bmp {
             in.ignore(rowSkip);
         }
 
-        return Image(dibHeader.height, dibHeader.width, channels, data);
+        return Image(dibHeader.height, dibHeader.width, channels, std::move(data));
     }
 }

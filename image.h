@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <opencv2/opencv.hpp>
-#include <OpenCL/opencl.h>
 
 class Image {
 private:
@@ -14,17 +13,13 @@ public:
     Image(unsigned int height, unsigned int width, unsigned int channels,
           std::vector<uint8_t> data);
 
-    unsigned int getHeight();
+    unsigned int getHeight() const;
 
-    unsigned int getWidth();
+    unsigned int getWidth() const;
 
-    uint8_t at(unsigned int row, unsigned int col, unsigned int channel);
+    uint8_t at(unsigned int row, unsigned int col, unsigned int channel) const;
 
-    Image toGreyscale();
+    cv::Mat createMat() const;
 
-    cv::Mat toMat();
-
-    cv::Mat ft2();
-
-    cv::Mat identity();
+    friend class ImageProcessor;
 };

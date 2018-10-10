@@ -1,62 +1,52 @@
-int index(int width, int row, int col);
+int index(int width, int channels, int row, int col, int channel);
 float2 complexMultiply(float2 c1, float2 c2);
+
+kernel void byteImageToComplex(global uchar* data, global float2* out) {
+    int width = get_global_size(1);
+    int channels = get_global_size(2);
+
+    int row = get_global_id(0);
+    int col = get_global_id(1);
+    int channel = get_global_id(2);
+
+    int i = index(width, channels, row, col, channel);
+    out[i] = (float2) (data[i], 0);
+}
 
 kernel void fourierRowsAndTranspose(global float2* data, global float2* out) {
     int height = get_global_size(0);
     int width = get_global_size(1);
+    int channels = get_global_size(2);
 
-    int x = get_global_id(1);
-    int y = get_global_id(0);
+    int row = get_global_id(0);
+    int col = get_global_id(1);
+    int channel = get_global_id(2);
 
     float2 sum = (float2) (0.0f, 0.0f);
-    for (int col = 0; col < width; col++) {
-        float2 value = data[index(width, y, col)];
-        float angle = 2 * M_PI_F * x * col / width;
+    for (int x = 0; x < width; x++) {
+        float2 value = data[index(width, channels, row, x, channel)];
+        float angle = 2 * M_PI_F * col * x / width;
         float2 dir = (float2) (cos(angle), -sin(angle));
         sum += complexMultiply(value, dir);
     }
 
-    out[index(height, x, y)] = sum;
+    out[index(height, channels, col, row, channel)] = sum;
 }
 
-kernel void ft2rows(global float2* data, global float2* out) {
-    int height = get_global_size(0);
+kernel void  complexImageToLogMagnitude(global float2* data, global float* out) {
     int width = get_global_size(1);
+    int channels = get_global_size(2);
 
-    int x = get_global_id(1);
-    int y = get_global_id(0);
+    int row = get_global_id(0);
+    int col = get_global_id(1);
+    int channel = get_global_id(2);
 
-    float2 sum = (float2) (0.0f, 0.0f);
-    for (int col = 0; col < width; col++) {
-        float2 value = data[index(width, y, col)];
-        float angle = 2 * M_PI_F * x * col / width;
-        float2 dir = (float2) (cos(angle), -sin(angle));
-        sum += complexMultiply(value, dir);
-    }
-
-    out[index(width, y, x)] = sum;
+    int i = index(width, channels, row, col, channel);
+    out[i] = log1p(length(data[i]));
 }
 
-kernel void ft2cols(global float2* data, global float2* out) {
-    int height = get_global_size(0);
-    int width = get_global_size(1);
-
-    int x = get_global_id(1);
-    int y = get_global_id(0);
-
-    float2 sum = (float2) (0.0f, 0.0f);
-    for (int row = 0; row < height; row++) {
-        float2 value = data[index(width, row, x)];
-        float angle = 2 * M_PI_F * y * row / height;
-        float2 dir = (float2) (cos(angle), -sin(angle));
-        sum += complexMultiply(value, dir);
-    }
-
-    out[index(width, y, x)] = sum;
-}
-
-int index(int width, int row, int col) {
-    return width * row + col;
+int index(int width, int channels, int row, int col, int channel) {
+    return row * width * channels + col * channels + channel;
 }
 
 float2 complexMultiply(float2 c1, float2 c2) {

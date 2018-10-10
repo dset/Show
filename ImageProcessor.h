@@ -1,16 +1,15 @@
 #pragma once
 
-#include <OpenCL/opencl.h>
 #include <opencv2/core/mat.hpp>
 #include "image.h"
+#include "OpenCLEnvironment.h"
 
 class ImageProcessor {
 private:
-    cl_context clContext;
-    cl_program clProgram;
-    cl_command_queue clQueue;
-    cl_kernel fourierRowsAndTransposeKernel;
+    OpenCLEnvironment env;
+
 public:
-    ImageProcessor();
-    cv::Mat toSpectrum(Image image);
+    ImageProcessor(OpenCLEnvironment& env);
+
+    cv::Mat createSpectrumMat(const Image &image);
 };
