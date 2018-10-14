@@ -13,7 +13,7 @@ kernel void byteImageToComplex(global uchar* data, global float2* out) {
     out[i] = (float2) (data[i], 0);
 }
 
-kernel void fourierRowsAndTranspose(global float2* data, global float2* out) {
+kernel void fourierColsAndTranspose(global float2* data, global float2* out) {
     int height = get_global_size(0);
     int width = get_global_size(1);
     int channels = get_global_size(2);
@@ -23,9 +23,9 @@ kernel void fourierRowsAndTranspose(global float2* data, global float2* out) {
     int channel = get_global_id(2);
 
     float2 sum = (float2) (0.0f, 0.0f);
-    for (int x = 0; x < width; x++) {
-        float2 value = data[index(width, channels, row, x, channel)];
-        float angle = 2 * M_PI_F * col * x / width;
+    for (int y = 0; y < height; y++) {
+        float2 value = data[index(width, channels, y, col, channel)];
+        float angle = 2 * M_PI_F * row * y / height;
         float2 dir = (float2) (cos(angle), -sin(angle));
         sum += complexMultiply(value, dir);
     }

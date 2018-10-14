@@ -9,7 +9,7 @@ public:
     cl_command_queue clQueue;
 
     cl_kernel byteImageToComplexKernel;
-    cl_kernel fourierRowsAndTransposeKernel;
+    cl_kernel fourierColsAndTransposeKernel;
     cl_kernel complexImageToLogMagnitudeKernel;
     cl_kernel convolveKernel;
 

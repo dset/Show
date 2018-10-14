@@ -30,8 +30,8 @@ cv::Mat ImageProcessor::createSpectrumMat(const Image &image) {
     clEnqueueWriteBuffer(env.clQueue, inputBuffer, CL_FALSE, 0, byteImageSize, image.data.data(), 0, nullptr, nullptr);
 
     callKernel(env.clQueue, env.byteImageToComplexKernel, dims, 0, inputBuffer, cBuffer1);
-    callKernel(env.clQueue, env.fourierRowsAndTransposeKernel, dims, 0, cBuffer1, cBuffer2);
-    callKernel(env.clQueue, env.fourierRowsAndTransposeKernel, trans_dims, 0, cBuffer2, cBuffer1);
+    callKernel(env.clQueue, env.fourierColsAndTransposeKernel, dims, 0, cBuffer1, cBuffer2);
+    callKernel(env.clQueue, env.fourierColsAndTransposeKernel, trans_dims, 0, cBuffer2, cBuffer1);
     callKernel(env.clQueue, env.complexImageToLogMagnitudeKernel, dims, 0, cBuffer1, outputBuffer);
 
     cv::Mat res(image.height, image.width, CV_32FC(image.channels));
