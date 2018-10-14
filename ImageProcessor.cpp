@@ -1,6 +1,17 @@
 #include "ImageProcessor.h"
 
-ImageProcessor::ImageProcessor(OpenCLEnvironment& env): env(env) {}
+#include <vector>
+
+void callKernel(cl_command_queue& queue, cl_kernel& kernel, const std::vector<size_t>& dimensions, cl_uint) {
+    clEnqueueNDRangeKernel(queue, kernel, static_cast<cl_uint>(dimensions.size()),
+            nullptr, dimensions.data(), nullptr, 0, nullptr, nullptr);
+}
+
+template <typename T, typename... Args>
+void callKernel(cl_command_queue& queue, cl_kernel& kernel, const std::vector<size_t>& dimensions, cl_uint narg, T& arg1, Args&... args) {
+    clSetKernelArg(kernel, narg, sizeof(arg1), &arg1);
+    callKernel(queue, kernel, dimensions, narg + 1, args...);
+}
 
 cv::Mat ImageProcessor::createSpectrumMat(const Image &image) {
     size_t imageSize = image.height * image.width * image.channels;
@@ -8,8 +19,8 @@ cv::Mat ImageProcessor::createSpectrumMat(const Image &image) {
     size_t complexImageSize = imageSize * sizeof(cl_float2);
     size_t floatImageSize = imageSize * sizeof(float);
 
-    size_t dimensions[] = {image.height, image.width, image.channels};
-    size_t transposedDimensions[] = {image.width, image.height, image.channels};
+    std::vector<size_t> dims{image.height, image.width, image.channels};
+    std::vector<size_t> trans_dims{image.width, image.height, image.channels};
 
     cl_mem inputBuffer = clCreateBuffer(env.clContext, CL_MEM_READ_WRITE, byteImageSize, nullptr, nullptr);
     cl_mem cBuffer1 = clCreateBuffer(env.clContext, CL_MEM_READ_WRITE, complexImageSize, nullptr, nullptr);
@@ -18,21 +29,10 @@ cv::Mat ImageProcessor::createSpectrumMat(const Image &image) {
 
     clEnqueueWriteBuffer(env.clQueue, inputBuffer, CL_FALSE, 0, byteImageSize, image.data.data(), 0, nullptr, nullptr);
 
-    clSetKernelArg(env.byteImageToComplexKernel, 0, sizeof(inputBuffer), &inputBuffer);
-    clSetKernelArg(env.byteImageToComplexKernel, 1, sizeof(cBuffer1), &cBuffer1);
-    clEnqueueNDRangeKernel(env.clQueue, env.byteImageToComplexKernel, 3, nullptr, dimensions, nullptr, 0, nullptr, nullptr);
-
-    clSetKernelArg(env.fourierRowsAndTransposeKernel, 0, sizeof(cBuffer1), &cBuffer1);
-    clSetKernelArg(env.fourierRowsAndTransposeKernel, 1, sizeof(cBuffer2), &cBuffer2);
-    clEnqueueNDRangeKernel(env.clQueue, env.fourierRowsAndTransposeKernel, 3, nullptr, dimensions, nullptr, 0, nullptr, nullptr);
-
-    clSetKernelArg(env.fourierRowsAndTransposeKernel, 0, sizeof(cBuffer2), &cBuffer2);
-    clSetKernelArg(env.fourierRowsAndTransposeKernel, 1, sizeof(cBuffer1), &cBuffer1);
-    clEnqueueNDRangeKernel(env.clQueue, env.fourierRowsAndTransposeKernel, 3, nullptr, transposedDimensions, nullptr, 0, nullptr, nullptr);
-
-    clSetKernelArg(env.complexImageToLogMagnitudeKernel, 0, sizeof(cBuffer1), &cBuffer1);
-    clSetKernelArg(env.complexImageToLogMagnitudeKernel, 1, sizeof(outputBuffer), &outputBuffer);
-    clEnqueueNDRangeKernel(env.clQueue, env.complexImageToLogMagnitudeKernel, 3, nullptr, dimensions, nullptr, 0, nullptr, nullptr);
+    callKernel(env.clQueue, env.byteImageToComplexKernel, dims, 0, inputBuffer, cBuffer1);
+    callKernel(env.clQueue, env.fourierRowsAndTransposeKernel, dims, 0, cBuffer1, cBuffer2);
+    callKernel(env.clQueue, env.fourierRowsAndTransposeKernel, trans_dims, 0, cBuffer2, cBuffer1);
+    callKernel(env.clQueue, env.complexImageToLogMagnitudeKernel, dims, 0, cBuffer1, outputBuffer);
 
     cv::Mat res(image.height, image.width, CV_32FC(image.channels));
     clEnqueueReadBuffer(env.clQueue, outputBuffer, CL_FALSE, 0, floatImageSize, res.data, 0, nullptr, nullptr);
@@ -71,7 +71,7 @@ cv::Mat ImageProcessor::convolve(const Image &image, const std::vector<float>& k
     cl_int kHeight = kernelHeight;
     cl_int kWidth = (int) kernel.size() / kernelHeight;
 
-    size_t dimensions[] = {image.height, image.width, image.channels};
+    std::vector<size_t> dims = {image.height, image.width, image.channels};
 
     cl_mem inputBuffer = clCreateBuffer(env.clContext, CL_MEM_READ_ONLY, byteImageSize, nullptr, nullptr);
     cl_mem kernelBuffer = clCreateBuffer(env.clContext, CL_MEM_READ_ONLY, kernelSize, nullptr, nullptr);
@@ -80,13 +80,7 @@ cv::Mat ImageProcessor::convolve(const Image &image, const std::vector<float>& k
     clEnqueueWriteBuffer(env.clQueue, inputBuffer, CL_FALSE, 0, byteImageSize, image.data.data(), 0, nullptr, nullptr);
     clEnqueueWriteBuffer(env.clQueue, kernelBuffer, CL_FALSE, 0, kernelSize, kernel.data(), 0, nullptr, nullptr);
 
-    clSetKernelArg(env.convolveKernel, 0, sizeof(inputBuffer), &inputBuffer);
-    clSetKernelArg(env.convolveKernel, 1, sizeof(kernelBuffer), &kernelBuffer);
-    clSetKernelArg(env.convolveKernel, 2, sizeof(kHeight), &kHeight);
-    clSetKernelArg(env.convolveKernel, 3, sizeof(kWidth), &kWidth);
-    clSetKernelArg(env.convolveKernel, 4, sizeof(outputBuffer), &outputBuffer);
-
-    clEnqueueNDRangeKernel(env.clQueue, env.convolveKernel, 3, nullptr, dimensions, nullptr, 0, nullptr, nullptr);
+    callKernel(env.clQueue, env.convolveKernel, dims, 0, inputBuffer, kernelBuffer, kHeight, kWidth, outputBuffer);
 
     cv::Mat res(image.height, image.width, CV_8UC(image.channels));
     clEnqueueReadBuffer(env.clQueue, outputBuffer, CL_FALSE, 0, byteImageSize, res.data, 0, nullptr, nullptr);

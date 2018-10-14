@@ -33,7 +33,7 @@ kernel void fourierRowsAndTranspose(global float2* data, global float2* out) {
     out[index(height, channels, col, row, channel)] = sum;
 }
 
-kernel void  complexImageToLogMagnitude(global float2* data, global float* out) {
+kernel void complexImageToLogMagnitude(global float2* data, global float* out) {
     int width = get_global_size(1);
     int channels = get_global_size(2);
 
