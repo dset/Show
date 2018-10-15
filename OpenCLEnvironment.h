@@ -12,6 +12,7 @@ public:
     cl_kernel fourierColsAndTransposeKernel;
     cl_kernel complexImageToLogMagnitudeKernel;
     cl_kernel convolveKernel;
+    cl_kernel grayscaleKernel;
 
     OpenCLEnvironment();
 };

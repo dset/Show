@@ -93,3 +93,27 @@ cv::Mat ImageProcessor::convolve(const Image &image, const std::vector<float>& k
 
     return res;
 }
+
+cv::Mat ImageProcessor::grayscale(const Image &image) {
+    size_t byteImageSize = image.height * image.width * image.channels * sizeof(uint8_t);
+    size_t outImageSize = image.height * image.width * sizeof(uint8_t);
+
+    std::vector<size_t> dims = {image.height, image.width};
+
+    cl_mem inputBuffer = clCreateBuffer(env.clContext, CL_MEM_READ_ONLY, byteImageSize, nullptr, nullptr);
+    cl_mem outputBuffer = clCreateBuffer(env.clContext, CL_MEM_READ_WRITE, outImageSize, nullptr, nullptr);
+
+    clEnqueueWriteBuffer(env.clQueue, inputBuffer, CL_FALSE, 0, byteImageSize, image.data.data(), 0, nullptr, nullptr);
+
+    callKernel(env.clQueue, env.grayscaleKernel, dims, 0, inputBuffer, image.channels, outputBuffer);
+
+    cv::Mat res(image.height, image.width, CV_8UC1);
+    clEnqueueReadBuffer(env.clQueue, outputBuffer, CL_FALSE, 0, outImageSize, res.data, 0, nullptr, nullptr);
+
+    clFinish(env.clQueue);
+
+    clReleaseMemObject(inputBuffer);
+    clReleaseMemObject(outputBuffer);
+
+    return res;
+}

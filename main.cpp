@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    //Image image(2, 2, 3, {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0});
+    //Image image(2, 2, 3, {10, 10, 10, 2, 2, 2, 3, 3, 3, 4, 4, 4});
     Image image = bmp::read(inf);
     cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
 
@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
             cv::imshow("Display window", processor.boxBlur(image, 11));
         } else if (key == 'e') {
             cv::imshow("Display window", processor.edges(image));
+        } else if (key == 'g') {
+            cv::imshow("Display window", processor.grayscale(image));
         } else {
             cv::imshow("Display window", image.createMat());
         }

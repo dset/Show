@@ -31,4 +31,5 @@ OpenCLEnvironment::OpenCLEnvironment() {
     fourierColsAndTransposeKernel = clCreateKernel(clProgram, "fourierColsAndTranspose", nullptr);
     complexImageToLogMagnitudeKernel = clCreateKernel(clProgram, "complexImageToLogMagnitude", nullptr);
     convolveKernel = clCreateKernel(clProgram, "convolve", nullptr);
+    grayscaleKernel = clCreateKernel(clProgram, "grayscale", nullptr);
 }

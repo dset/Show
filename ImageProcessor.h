@@ -18,4 +18,6 @@ public:
     cv::Mat boxBlur(const Image &image, unsigned int size);
 
     cv::Mat edges(const Image &image);
+
+    cv::Mat grayscale(const Image &image);
 };

@@ -68,6 +68,20 @@ kernel void convolve(global uchar* data, global float* kern, uint kernHeight, ui
     out[index(width, channels, row, col, channel)] = (uchar) clamp(val, 0.0f, 255.0f);
 }
 
+kernel void grayscale(global uchar* data, uint channels, global uchar* out) {
+    int width = get_global_size(1);
+
+    int row = get_global_id(0);
+    int col = get_global_id(1);
+
+    uchar res = 0;
+    for (int channel = 0; channel < channels; channel++) {
+        res += data[index(width, channels, row, col, channel)] / channels;
+    }
+
+    out[index(width, 1, row, col, 0)] = res;
+}
+
 int index(int width, int channels, int row, int col, int channel) {
     return row * width * channels + col * channels + channel;
 }
