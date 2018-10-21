@@ -26,4 +26,6 @@ public:
     cv::Mat mirrorHorizontal(const Image &image);
 
     cv::Mat mirrorVertical(const Image &image);
+
+    cv::Mat rotate90(const Image &image);
 };

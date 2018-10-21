@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    //Image image(2, 2, 3, {10, 10, 10, 2, 2, 2, 3, 3, 3, 4, 4, 4});
+    //Image image(2, 3, 3, {1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6});
     Image image = bmp::read(inf);
     cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
 
@@ -35,6 +35,8 @@ int main(int argc, char *argv[]) {
             cv::imshow("Display window", processor.mirrorHorizontal(image));
         } else if (key == 'v') {
             cv::imshow("Display window", processor.mirrorVertical(image));
+        } else if (key == 'r') {
+            cv::imshow("Display window", processor.rotate90(image));
         } else {
             cv::imshow("Display window", image.createMat());
         }

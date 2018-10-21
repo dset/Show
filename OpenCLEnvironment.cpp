@@ -34,4 +34,5 @@ OpenCLEnvironment::OpenCLEnvironment() {
     grayscaleKernel = clCreateKernel(clProgram, "grayscale", nullptr);
     mirrorHorizontalKernel = clCreateKernel(clProgram, "mirrorHorizontal", nullptr);
     mirrorVerticalKernel = clCreateKernel(clProgram, "mirrorVertical", nullptr);
+    rotate90Kernel = clCreateKernel(clProgram, "rotate90", nullptr);
 }

@@ -107,6 +107,19 @@ kernel void mirrorVertical(global uchar* data, global uchar* out) {
     out[index(width, channels, height - 1 - row, col, channel)] = value;
 }
 
+kernel void rotate90(global uchar* data, global uchar* out) {
+    int height = get_global_size(0);
+    int width = get_global_size(1);
+    int channels = get_global_size(2);
+
+    int row = get_global_id(0);
+    int col = get_global_id(1);
+    int channel = get_global_id(2);
+
+    uchar value = data[index(width, channels, row, col, channel)];
+    out[index(height, channels, col, height - 1 - row, channel)] = value;
+}
+
 int index(int width, int channels, int row, int col, int channel) {
     return row * width * channels + col * channels + channel;
 }

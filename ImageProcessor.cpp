@@ -146,3 +146,26 @@ cv::Mat ImageProcessor::mirrorHorizontal(const Image &image) {
 cv::Mat ImageProcessor::mirrorVertical(const Image &image) {
     return mirror(image, env.mirrorVerticalKernel);
 }
+
+cv::Mat ImageProcessor::rotate90(const Image &image) {
+    size_t byteImageSize = image.height * image.width * image.channels * sizeof(uint8_t);
+
+    std::vector<size_t> dims = {image.height, image.width, image.channels};
+
+    cl_mem inputBuffer = clCreateBuffer(env.clContext, CL_MEM_READ_ONLY, byteImageSize, nullptr, nullptr);
+    cl_mem outputBuffer = clCreateBuffer(env.clContext, CL_MEM_READ_WRITE, byteImageSize, nullptr, nullptr);
+
+    clEnqueueWriteBuffer(env.clQueue, inputBuffer, CL_FALSE, 0, byteImageSize, image.data.data(), 0, nullptr, nullptr);
+
+    callKernel(env.clQueue, env.rotate90Kernel, dims, 0, inputBuffer, outputBuffer);
+
+    cv::Mat res(image.width, image.height, CV_8UC(image.channels));
+    clEnqueueReadBuffer(env.clQueue, outputBuffer, CL_FALSE, 0, byteImageSize, res.data, 0, nullptr, nullptr);
+
+    clFinish(env.clQueue);
+
+    clReleaseMemObject(inputBuffer);
+    clReleaseMemObject(outputBuffer);
+
+    return res;
+}

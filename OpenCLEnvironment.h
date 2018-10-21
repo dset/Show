@@ -15,6 +15,7 @@ public:
     cl_kernel grayscaleKernel;
     cl_kernel mirrorHorizontalKernel;
     cl_kernel mirrorVerticalKernel;
+    cl_kernel rotate90Kernel;
 
     OpenCLEnvironment();
 };
