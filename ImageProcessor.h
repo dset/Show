@@ -10,8 +10,10 @@ private:
 
     cv::Mat convolve(const Image &image, const std::vector<float> &kernel, int kernelHeight);
 
+    cv::Mat mirror(const Image &image, cl_kernel mirrorKernel);
+
 public:
-    ImageProcessor(OpenCLEnvironment &env) : env(env) {}
+    explicit ImageProcessor(OpenCLEnvironment &env) : env(env) {}
 
     cv::Mat createSpectrumMat(const Image &image);
 
@@ -20,4 +22,8 @@ public:
     cv::Mat edges(const Image &image);
 
     cv::Mat grayscale(const Image &image);
+
+    cv::Mat mirrorHorizontal(const Image &image);
+
+    cv::Mat mirrorVertical(const Image &image);
 };

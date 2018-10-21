@@ -32,4 +32,6 @@ OpenCLEnvironment::OpenCLEnvironment() {
     complexImageToLogMagnitudeKernel = clCreateKernel(clProgram, "complexImageToLogMagnitude", nullptr);
     convolveKernel = clCreateKernel(clProgram, "convolve", nullptr);
     grayscaleKernel = clCreateKernel(clProgram, "grayscale", nullptr);
+    mirrorHorizontalKernel = clCreateKernel(clProgram, "mirrorHorizontal", nullptr);
+    mirrorVerticalKernel = clCreateKernel(clProgram, "mirrorVertical", nullptr);
 }

@@ -1,7 +1,5 @@
 #include "ImageProcessor.h"
 
-#include <vector>
-
 void callKernel(cl_command_queue& queue, cl_kernel& kernel, const std::vector<size_t>& dimensions, cl_uint) {
     clEnqueueNDRangeKernel(queue, kernel, static_cast<cl_uint>(dimensions.size()),
             nullptr, dimensions.data(), nullptr, 0, nullptr, nullptr);
@@ -116,4 +114,35 @@ cv::Mat ImageProcessor::grayscale(const Image &image) {
     clReleaseMemObject(outputBuffer);
 
     return res;
+}
+
+cv::Mat ImageProcessor::mirror(const Image &image, cl_kernel mirrorKernel) {
+    size_t byteImageSize = image.height * image.width * image.channels * sizeof(uint8_t);
+
+    std::vector<size_t> dims = {image.height, image.width, image.channels};
+
+    cl_mem inputBuffer = clCreateBuffer(env.clContext, CL_MEM_READ_ONLY, byteImageSize, nullptr, nullptr);
+    cl_mem outputBuffer = clCreateBuffer(env.clContext, CL_MEM_READ_WRITE, byteImageSize, nullptr, nullptr);
+
+    clEnqueueWriteBuffer(env.clQueue, inputBuffer, CL_FALSE, 0, byteImageSize, image.data.data(), 0, nullptr, nullptr);
+
+    callKernel(env.clQueue, mirrorKernel, dims, 0, inputBuffer, outputBuffer);
+
+    cv::Mat res(image.height, image.width, CV_8UC(image.channels));
+    clEnqueueReadBuffer(env.clQueue, outputBuffer, CL_FALSE, 0, byteImageSize, res.data, 0, nullptr, nullptr);
+
+    clFinish(env.clQueue);
+
+    clReleaseMemObject(inputBuffer);
+    clReleaseMemObject(outputBuffer);
+
+    return res;
+}
+
+cv::Mat ImageProcessor::mirrorHorizontal(const Image &image) {
+    return mirror(image, env.mirrorHorizontalKernel);
+}
+
+cv::Mat ImageProcessor::mirrorVertical(const Image &image) {
+    return mirror(image, env.mirrorVerticalKernel);
 }

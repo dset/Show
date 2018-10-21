@@ -31,6 +31,10 @@ int main(int argc, char *argv[]) {
             cv::imshow("Display window", processor.edges(image));
         } else if (key == 'g') {
             cv::imshow("Display window", processor.grayscale(image));
+        } else if (key == 'h') {
+            cv::imshow("Display window", processor.mirrorHorizontal(image));
+        } else if (key == 'v') {
+            cv::imshow("Display window", processor.mirrorVertical(image));
         } else {
             cv::imshow("Display window", image.createMat());
         }

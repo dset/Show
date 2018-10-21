@@ -13,6 +13,8 @@ public:
     cl_kernel complexImageToLogMagnitudeKernel;
     cl_kernel convolveKernel;
     cl_kernel grayscaleKernel;
+    cl_kernel mirrorHorizontalKernel;
+    cl_kernel mirrorVerticalKernel;
 
     OpenCLEnvironment();
 };
