@@ -5,5 +5,25 @@ Show is a simple image editor written in C++ and OpenCL. It can display some var
 Basic image display
 
 ## Transformations
+Here is a list of the implemented transformations
+
+### Fourier spectrum
 ![Marbles fourier spectrum](imgs-readme/marbles-s.jpg)
-Fourier spectrum
+
+### Box blur
+![Marbles box blur](imgs-readme/marbles-b.jpg)
+
+### Edges
+![Marbles edges](imgs-readme/marbles-e.jpg)
+
+### Grayscale
+![Marbles grayscale](imgs-readme/marbles-g.jpg)
+
+### Vertical flip
+![Marbles vertical flip](imgs-readme/marbles-v.jpg)
+
+### Horizontal flip
+![Marbles horizontal flip](imgs-readme/marbles-h.jpg)
+
+### Rotation
+![Marbles rotation](imgs-readme/marbles-r.jpg)
