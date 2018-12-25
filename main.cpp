@@ -14,9 +14,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    //Image image(2, 3, 3, {1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6});
     Image image = bmp::read(inf);
-    cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
+    std::string name = "Display window";
+    cv::namedWindow(name, cv::WINDOW_AUTOSIZE);
 
     OpenCLEnvironment env;
     ImageProcessor processor(env);
@@ -24,21 +24,21 @@ int main(int argc, char *argv[]) {
     int key = -1;
     while (key != 'q') {
         if (key == 's') {
-            cv::imshow("Display window", processor.createSpectrumMat(image));
+            cv::imshow(name, processor.createSpectrumMat(image));
         } else if (key == 'b') {
-            cv::imshow("Display window", processor.boxBlur(image, 11));
+            cv::imshow(name, processor.boxBlur(image, 11));
         } else if (key == 'e') {
-            cv::imshow("Display window", processor.edges(image));
+            cv::imshow(name, processor.edges(image));
         } else if (key == 'g') {
-            cv::imshow("Display window", processor.grayscale(image));
+            cv::imshow(name, processor.grayscale(image));
         } else if (key == 'h') {
-            cv::imshow("Display window", processor.mirrorHorizontal(image));
+            cv::imshow(name, processor.mirrorHorizontal(image));
         } else if (key == 'v') {
-            cv::imshow("Display window", processor.mirrorVertical(image));
+            cv::imshow(name, processor.mirrorVertical(image));
         } else if (key == 'r') {
-            cv::imshow("Display window", processor.rotate90(image));
+            cv::imshow(name, processor.rotate90(image));
         } else {
-            cv::imshow("Display window", image.createMat());
+            cv::imshow(name, image.createMat());
         }
 
         key = cv::waitKey(0);
